@@ -9,7 +9,8 @@
     </head>
     <body>
         <div id="app">
-            <button @click="test01">test01</button>
+            <button @click="prev_event">prev</button>
+            <button @click="next_event">next</button>
         </div>
         <div id="plotly"></div>
     </body>
@@ -65,17 +66,30 @@
             data:{
                 message: "Vue.js",
                 hit_array: [],
-                
+                i_event: -1,
             },
 
             methods:{
-                test01: function(){
-                    axios.get("/json_test")
+                fetch_hit_json: function(){
+                    console.log("/get_hit_json" + this.i_event.toString());
+                    axios.get("/get_hit_json" + this.i_event.toString())
                     .then(response => {
-                        let hit_data = response.data.hit;
+                        let hit_data = response.data.hit
                         render_plotly(this.scinti_data, flatten_array(hit_data));
-                    });
+                    })
                 },
+                prev_event: function(){
+                    if (this.i_event < 2){
+                        this.i_event = 0;
+                    } else {
+                        this.i_event--;
+                    }
+                    this.fetch_hit_json();
+                },
+                next_event: function(){
+                    this.i_event++;
+                    this.fetch_hit_json();
+                }
             },
 
             mounted: function(){
