@@ -1,16 +1,9 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
-const html = `
-<form method="POST" action="/">
-  <input type="text" name="name" placeholder="Your name">
-  <button type="submit">Submit</button>
-</form>
-`;
-
 async function handler(req: Request): Promise<Response> {
   switch (req.method) {
     case "GET": {
-      return new Response(html, {
+      return new Response("a", {
         headers: { "content-type": "text/html; charset=utf-8" },
       });
     }
