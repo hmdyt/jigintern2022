@@ -5,8 +5,13 @@ router
   .get("/", async (context) => {
     context.response.body = await Deno.readTextFile("index.html")
   })
-  .get("/json_test", async (context) => {
-    context.response.body = await Deno.readTextFile("json/test01.json")
+  .get("/get_hit_json:id", async (context) => {
+    const paths = [];
+    const event_id = parseInt(context.params.id, 10);
+    for await (const item of Deno.readDir('json')) {
+      paths.push(item.name);
+    }
+    context.response.body = await Deno.readTextFile("json/" + paths[event_id]);
   })
   .get("/get_scinti_data", async (context) => {
     context.response.body = await Deno.readTextFile("json/scinti.json")
