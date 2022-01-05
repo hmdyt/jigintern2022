@@ -11,6 +11,9 @@
         <div id="app">
             <button @click="prev_event">prev</button>
             <button @click="next_event">next</button>
+            <input type="tel" v-model:placeholder="i_event" @keydown.enter="fetch_hit_json">
+            /{{ n_event }}
+            
         </div>
         <div id="plotly"></div>
     </body>
@@ -67,6 +70,7 @@
                 message: "Vue.js",
                 hit_array: [],
                 i_event: -1,
+                n_event: 0,
             },
 
             methods:{
@@ -99,6 +103,10 @@
                     let hit_data = [];
                     for (let i = 0; i < 128; i++){ hit_data.push(0); }
                     render_plotly(this.scinti_data, hit_data);
+                });
+                axios.get("get_n_event")
+                .then(response => {
+                    this.n_event = parseInt(response.data, 10);
                 });
             }
         })

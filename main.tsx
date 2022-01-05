@@ -16,6 +16,13 @@ router
   .get("/get_scinti_data", async (context) => {
     context.response.body = await Deno.readTextFile("json/scinti.json")
   })
+  .get("/get_n_event", async (context) => {
+    let n_event = 0
+    for await (const item of Deno.readDir('json')) {
+      n_event++
+    }
+    context.response.body = n_event;
+  })
 
 
 const app = new Application()
