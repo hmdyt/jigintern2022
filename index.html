@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <meta charset="utf-8">
+        <title>cosmic ray visualizer</title>
+    </head>
+    <body>
+        <div id="app">
+            <button @click="test01">test01</button>
+        </div>
+        <div id="plotly"></div>
+    </body>
+    <script>
+        const SHOWING_RANGE = [-100, 100];
+        const PLOTLY_LAYOUT = {
+            width: document.documentElement.clientWidth * 0.99,
+            height: document.documentElement.clientHeight * 0.9,
+            scene: {
+                aspectmode: "manual",
+                aspectratio: {x: 1, y: 1, z: 1},
+                xaxis: {nticks: 2, range: SHOWING_RANGE},
+                yaxis: {nticks: 2, range: SHOWING_RANGE},
+                zaxis: {nticks: 2, range: SHOWING_RANGE},
+                camera: {eye: {x:0.4, y:0.4, z:0.4}}
+            }
+        };
+        const flatten_array = (arr) => {
+            let ret = [];
+            for (let i = 0; i < 8; i++){
+                for (let j = 0; j < 4; j++){
+                    for (let k = 0; k < 4; k++){
+                        ret.push(arr[i][j][k]);
+                    }
+                }
+            }
+            return ret;
+        };
+        const render_plotly = (scinti_data, hit_data_flatten) => {
+            let plotly_data = [];
+            for (let i = 0; i < scinti_data.length; i++){
+                plotly_color = hit_data_flatten[i] ? "red" : "cyan";
+                plotly_opacity = hit_data_flatten[i] ? 1 : 0.05;
+                plotly_data.push(
+                    {
+                        type: "mesh3d",
+                        color: plotly_color,
+                        opacity: plotly_opacity,
+                        x: scinti_data[i].x,
+                        y: scinti_data[i].y,
+                        z: scinti_data[i].z,
+                        i: scinti_data[i].i,
+                        j: scinti_data[i].j,
+                        k: scinti_data[i].k
+                    }
+                );
+            }
+            Plotly.newPlot("plotly", plotly_data, PLOTLY_LAYOUT);
+        }
+
+        var app = new Vue({
+            el: "#app",
+            data:{
+                message: "Vue.js",
+                hit_array: [],
+                
+            },
+
+            methods:{
+                test01: function(){
+                    axios.get("/json_test")
+                    .then(response => {
+                        let hit_data = response.data.hit;
+                        render_plotly(this.scinti_data, flatten_array(hit_data));
+                    });
+                },
+            },
+
+            mounted: function(){
+                axios.get("/get_scinti_data")
+                .then(response => {
+                    this.scinti_data = response.data.scinti;
+                    let hit_data = [];
+                    for (let i = 0; i < 128; i++){ hit_data.push(0); }
+                    render_plotly(this.scinti_data, hit_data);
+                });
+            }
+        })
+    </script>
+</html>

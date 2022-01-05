@@ -1,23 +1,21 @@
-import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
+import { Application,Router } from "https://deno.land/x/oak/mod.ts"
 
-async function handler(req: Request): Promise<Response> {
-  switch (req.method) {
-    case "GET": {
-      return new Response("a", {
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
-    }
+const router = new Router()
+router
+  .get("/", async (context) => {
+    context.response.body = await Deno.readTextFile("index.html")
+  })
+  .get("/json_test", async (context) => {
+    context.response.body = await Deno.readTextFile("json/test01.json")
+  })
+  .get("/get_scinti_data", async (context) => {
+    context.response.body = await Deno.readTextFile("json/scinti.json")
+  })
 
-    case "POST": {
-      const body = await req.formData();
-      const name = body.get("name") || "anonymous";
-      return new Response(`Hello ${name}!`);
-    }
 
-    default:
-      return new Response("Invalid method", { status: 405 });
-  }
-}
+const app = new Application()
+app.use(router.routes())
+app.use(router.allowedMethods())
 
-console.log("Listening on http://localhost:8000");
-serve(handler);
+console.log("server http://localhost:8000")
+await app.listen({ port: 8000 })
